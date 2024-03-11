@@ -19,8 +19,6 @@ if __name__ == "__main__":
     file.close()
 
     output_file_bin = open("output_bin.txt", "w")
-    output_file_hex = open("output_hex.txt", "w")
-
 
     binary_output = ''
 
@@ -38,18 +36,24 @@ if __name__ == "__main__":
 
 
         if not correct:
-            print(f"Error incountered at line {line+1}, ")
+            print(f"\x1b[31mError incountered at line {line+1}\x1b[0m", end=", ")
             sg.suggestions_for(one_line_data[0])
             continue
         
-
-        print(one_line_data)
+        #checking for a label
+        if one_line_data[0][-1] == ":": 
+            continue 
 
         if (one_line_data[0] in R_Type_Instructions):
             binary_output += R_Type[one_line_data[0]]["opcode"] + Registers[one_line_data[1]] + R_Type[one_line_data[0]]["funct3"] + Registers[one_line_data[2]] + Registers[one_line_data[3]] + R_Type[one_line_data[0]]["funct7"]
 
         elif (one_line_data[0] in I_Type_Instructions):
-            one_line_data[3] = bin(int(one_line_data[3]))[2:]
+            one_line_data[3] = bin(int(one_line_data[3]))
+            if one_line_data[3] > 2**12 - 1:
+                print(f"On {line+1}, immediate value given is %d, maximum value allowed is {2**12-1}"%one_line_data)
+                continue
+
+            one_line_data[3] = one_line_data[2:]
             binary_output += I_Type[one_line_data[0]]["opcode"] + Registers[one_line_data[1]] + I_Type[one_line_data[0]]["funct3"] + Registers[one_line_data[2]] + one_line_data[3]
 
         elif (one_line_data[0] in S_Type_Instructions):
@@ -69,11 +73,8 @@ if __name__ == "__main__":
             binary_output += J_Type["jal"]["opcode"] + Registers[one_line_data[1]] + one_line_data[2][11:19] + one_line_data[2][10] + one_line_data[2][0:9] + one_line_data[2][19]
 
     
-    if correct:
-        output_file_bin.write(binary_output)
+        if correct:
+            output_file_bin.write(binary_output)
+            output_file_bin.write()
         
-        for_hex = "0b" + binary_output
-        for_hex = int(for_hex, base=0)
-        output_file_hex.write(str(hex(for_hex))[2:]) #decimal to hex
-    output_file_hex.close()
     output_file_bin.close()
