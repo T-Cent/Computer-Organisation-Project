@@ -1,4 +1,4 @@
-import parser as ps
+import assembler as ps
 
 '''
 A helper module which returns suggestions for labels and instructions if they user misspelled,
@@ -48,5 +48,5 @@ def suggestions_for(instruction, known_instructions=all_instructions, type="inst
     y = list(filter(lambda x: suggester(x)>len(x)-2, y))
     print(f"{c.red(instruction)} {c.highlight_red(' did not match any known ')}{type}", ' perhaps you meant' if len(y) else c.highlight_white(f"no similar {type} found"), end=" ") 
     print(c.cyan_a, end="")
-    print(*y, sep=", ", end="?")
+    print(*y, sep=", ", end=".")
     print(c.end)

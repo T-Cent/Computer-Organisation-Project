@@ -1,3 +1,4 @@
+from cProfile import label
 import sys
 import re
 from lookup import R_Type, I_Type, S_Type, B_Type, U_Type, J_Type, Registers
@@ -6,7 +7,6 @@ import suggester as sg
 '''
 the RISCV assembler, used lookup.py and suggester.py as helper modules to keep things less complicated.
 '''
-
 R_Type_Instructions = ["add", "sub", "slt", "sltu", "xor", "sll", "srl", "or", "and"]
 I_Type_Instructions = ["lw", "addi", "sltiu", "jalr"]
 S_Type_Instructions = ["sw"]
@@ -61,15 +61,24 @@ if __name__ == "__main__":
             global global_correct
             global_correct = False
             return True
+    
+    #the assembler was also made with the logical assumption that opcode should be on the left, this fixes this (for sure)
+    def hot_fix_1(*args):
+        x = ''
+        for i in args[::-1]:
+            x += str(i)
 
-
-    #apparently labels should not be on their seperate lines! have to throw an instruction on the same line! this assembler was not made like that, this loop is to fix that.
+        return x
+    
+    #apparently labels should not be on their separate lines! have to throw an instruction on the same line! this assembler was not made like that, this loop is to fix that.
     corrections = 0
     for index, line in enumerate(data):
         if (":" in line):
             x_l = data[:index+corrections]
             x_r = data[index+1+corrections:]
-            data = x_l + line.split(":") + x_r
+            line = line.split(":")
+            line[0] += ":"
+            data = x_l + line + x_r
             corrections += 1
 
     #getting all labels and their corresponding pointers first
@@ -102,7 +111,6 @@ if __name__ == "__main__":
         if not len(one_line_data):
             continue
 
-
         temp_labels = list(map(lambda x: x+":", list(labels_pointer.keys())))
         if (one_line_data[0] in (All_Instructions+temp_labels)):
             correct *= True
@@ -110,7 +118,7 @@ if __name__ == "__main__":
             correct *= False
 
         if not correct:
-            print(c.red(f"Error incountered at line {c.highlight_white(line+1)}"), end=", ")
+            print(c.red(f"Error encountered at line {c.highlight_white(line+1)}"), end=", ")
             sg.suggestions_for(one_line_data[0])
         
 
@@ -124,7 +132,7 @@ if __name__ == "__main__":
         if (one_line_data[0] in R_Type_Instructions):
             if check_registers(line, 1, 2, 3):
                 continue
-            binary_output += R_Type[one_line_data[0]]["opcode"] + Registers[one_line_data[1]] + R_Type[one_line_data[0]]["funct3"] + Registers[one_line_data[2]] + Registers[one_line_data[3]] + R_Type[one_line_data[0]]["funct7"]
+            binary_output += hot_fix_1(R_Type[one_line_data[0]]["opcode"], Registers[one_line_data[1]], R_Type[one_line_data[0]]["funct3"], Registers[one_line_data[2]], Registers[one_line_data[3]], R_Type[one_line_data[0]]["funct7"])
 
         elif (one_line_data[0] in I_Type_Instructions):
             if one_line_data[0] == "lw":
@@ -134,9 +142,10 @@ if __name__ == "__main__":
                     print(c.red_a,f"Immediate value is larger than allowed, maximum value is {c.highlight_white(max)}")
                     continue
                 else:
-                    one_line_data[2] = '0'*(14-len(bin(str(x))))+bin(str(x))[2:]
+                    x = twos_complement(12, x)
+                    one_line_data[2] = '0'*(14-len(x))+x[2:]
           
-                    binary_output += I_Type[one_line_data[0]]["opcode"] + Registers[one_line_data[1]] + I_Type[one_line_data[0]]["funct3"] + Registers[one_line_data[3]] + one_line_data[2]
+                    binary_output += hot_fix_1(I_Type[one_line_data[0]]["opcode"], Registers[one_line_data[1]], I_Type[one_line_data[0]]["funct3"], Registers[one_line_data[3]], one_line_data[2])
 
             else:
                 if check_registers(line, 1, 2):
@@ -145,9 +154,10 @@ if __name__ == "__main__":
                     print(c.red_a,f"Immediate value is larger than allowed, maximum value is {c.highlight_white(max)}")
                     continue
                 else:
-                    one_line_data[3] = '0'*(14-len(bin(str(x))))+bin(str(x))[2:]
+                    x = twos_complement(12, x)
+                    one_line_data[3] = '0'*(14-len(x))+x[2:]
 
-                    binary_output += I_Type[one_line_data[0]]["opcode"] + Registers[one_line_data[1]] + I_Type[one_line_data[0]]["funct3"] + Registers[one_line_data[2]] + one_line_data[3]
+                    binary_output += hot_fix_1(I_Type[one_line_data[0]]["opcode"], Registers[one_line_data[1]], I_Type[one_line_data[0]]["funct3"], Registers[one_line_data[2]], one_line_data[3])
       
                     
         elif (one_line_data[0] in S_Type_Instructions):
@@ -157,9 +167,10 @@ if __name__ == "__main__":
                     print(c.red_a,f"Immediate value is larger than allowed, maximum value is {c.highlight_white(max)}")
                     continue
                 else:
-                    one_line_data[2] = '0'*(14-len(bin(str(x))))+bin(str(x))[2:]
-          
-                    binary_output += S_Type["sw"]["opcode"] + one_line_data[2][0:4] + S_Type["sw"]["funct3"] + Registers[one_line_data[1]] + Registers[one_line_data[3]] + one_line_data[5:11]
+                    x = twos_complement(12, x)
+                    one_line_data[2] = '0'*(14-len(x))+x[2:]
+
+                binary_output += hot_fix_1(S_Type["sw"]["opcode"], one_line_data[2][0:4], S_Type["sw"]["funct3"], Registers[one_line_data[1]], Registers[one_line_data[3]], one_line_data[2][4:])
 
 
         elif (one_line_data[0] in B_Type_Instructions):
@@ -171,16 +182,22 @@ if __name__ == "__main__":
                     continue
 
             except ValueError:
-                if (x:=one_line_data[3] in labels_pointer.keys()):
-                    x = twos_complement(12, 4*line-labels_pointer[one_line_data[3]])
+                if ((x:=one_line_data[3]) in labels_pointer.keys()):
+                    x = twos_complement(12, 4*line-labels_pointer[x])
                 else:
                     global_correct = False
                     sg.suggestions_for(x, list(labels_pointer.keys()), "label")
 
-                                        
-            one_line_data[3] = '0'*(14-len(x))+x[2:]
-          
-            binary_output += B_Type[one_line_data[0]]["opcode"] + one_line_data[3][10] + one_line_data[3][0:4] + B_Type[one_line_data[0]]["funct3"] + Registers[one_line_data[1]] + Registers[one_line_data[2]] + one_line_data[3][4:10] + one_line_data[3][11]
+            try:
+                int(one_line_data[3])
+                x = twos_complement(12, x)
+            except ValueError:
+                pass
+
+            one_line_data[3] = '0'*(14-len(str(x)))+str(x)[2:]
+            one_line_data[3] = one_line_data[3][::-1]
+
+            binary_output +=  one_line_data[3][11] + one_line_data[3][9:3:-1] + Registers[one_line_data[2]] + Registers[one_line_data[1]] + B_Type[one_line_data[0]]["funct3"] + one_line_data[3][3::-1] + one_line_data[3][10] + B_Type[one_line_data[0]]["opcode"]
 
         elif (one_line_data[0] in U_Type_Instructions):
                 if check_registers(line, 1):
@@ -189,9 +206,9 @@ if __name__ == "__main__":
                     print(c.red_a,f"Immediate value is larger than allowed, maximum value is {c.highlight_white(max)}")
                     continue
                 else:
-                    one_line_data[2] = '0'*(22-len(bin(str(x))))+bin(str(x))[2:]
+                    one_line_data[2] = '0'*(22-len(bin(x)))+bin(x)[2:]
           
-                    binary_output += U_Type[one_line_data[0]]["opcode"] + Registers[one_line_data[1]] + one_line_data[2]
+                    binary_output += hot_fix_1(U_Type[one_line_data[0]]["opcode"], Registers[one_line_data[1]], one_line_data[2])
 
         elif (one_line_data[0] in J_Type_Instructions):
             if check_registers(line, 1):
@@ -203,7 +220,6 @@ if __name__ == "__main__":
 
             except ValueError:
                 if ((x:=one_line_data[2]) in labels_pointer.keys()):
-                    print(x)
                     x = twos_complement(20, 4*line-labels_pointer[x])
                 else:
                     global_correct = False
@@ -211,22 +227,28 @@ if __name__ == "__main__":
     
             try:
                 int(one_line_data[2])
-                one_line_data[2] = '0'*(22-len(bin(str(x))))+bin(str(x))[2:]
-            except ValueError:
+                x = twos_complement(20, x)
                 one_line_data[2] = '0'*(22-len(x))+x[2:]
+                one_line_data[2] = one_line_data[2][::-1]
+            except ValueError:
+                one_line_data[2] = '0'*(22-len(str(x)))+str(x)[2:]
+                one_line_data[2] = one_line_data[2][::-1]
 
-            binary_output += J_Type["jal"]["opcode"] + Registers[one_line_data[1]] + one_line_data[2][11:19] + one_line_data[2][10] + one_line_data[2][0:9] + one_line_data[2][19]
+            print(one_line_data)
+
+            binary_output += one_line_data[2][19] + one_line_data[2][9::-1] + one_line_data[2][10] + one_line_data[2][18:10:-1] + Registers[one_line_data[1]] + J_Type["jal"]["opcode"]
 
         binary_output_list.append(binary_output)
 
-
+    if binary_output_list[-1] != "00000000000000000000000001100011":
+        print(c.highlight_red("Virtual halt not found, binary cannot be created"))
+        global_correct = False
     
     if global_correct:
-        print("\x1b[32mNo errors detected, binary succesfully created.\x1b[0m")
+        print("\x1b[32mNo errors detected, binary successfully created.\x1b[0m")
         for x in binary_output_list:
             if len(x) != 0:
-                #also apparently, the opcode should be on the right, and not the left, but whatever.
-                output_file_bin.write(x[::-1])
+                output_file_bin.write(x)
                 output_file_bin.write("\n")
         
     output_file_bin.close()
