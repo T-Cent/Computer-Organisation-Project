@@ -1,4 +1,3 @@
-from cProfile import label
 import sys
 import re
 from lookup import R_Type, I_Type, S_Type, B_Type, U_Type, J_Type, Registers
@@ -226,8 +225,6 @@ if __name__ == "__main__":
                     x = twos_complement(20, x)
                     one_line_data[2] = '0'*(22-len(x))+x[2:]
                 
-
-          
                     binary_output += hot_fix_1(U_Type[one_line_data[0]]["opcode"], Registers[one_line_data[1]], one_line_data[2])
 
         elif (one_line_data[0] in J_Type_Instructions):
