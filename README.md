@@ -2,7 +2,9 @@
 # RISC-V Assembler Project
 
 ## Note:
-The original git repository can be found at `github.com/taraash23552/Computer-Organisation-Project`, due to some unforseen conditions, I (taraash) managed to somehow make this repository unusable as we could not push anything to it anymore, hence, we made a new repository and tried to replicate all the premade commits added to it (using `git log --oneline`, we had all the history).
+ - The original git repository can be found at `github.com/taraash23552/Computer-Organisation-Project`, due to some unforseen conditions, I (taraash) managed to somehow make this repository unusable as we could not push anything to it anymore, hence, we made a new repository and tried to replicate all the premade commits added to it (using `git log --oneline`, we had all the history).
+ - We believe the correct answers provided by the college are wrong, we have found multiple instances in which the given solutions fail.
+
 
 ## Outline
 
