@@ -1,5 +1,10 @@
 import parser as ps
 
+'''
+A helper module which returns suggestions for labels and instructions if they user misspelled,
+also contains the `colors` class which helps to color the output in the terminal.
+'''
+
 class colors:
     red_a = "\x1b[31m"
     cyan_a = "\x1b[36m"
@@ -23,8 +28,9 @@ class colors:
         return self.hl_red_a + str(x) + self.end
         
 
-def suggestions_for(instruction):
-    all_instructions = ps.R_Type_Instructions + ps.I_Type_Instructions + ps.S_Type_Instructions + ps.B_Type_Instructions + ps.U_Type_Instructions + ps.J_Type_Instructions + ps.Bonus
+all_instructions = ps.R_Type_Instructions + ps.I_Type_Instructions + ps.S_Type_Instructions + ps.B_Type_Instructions + ps.U_Type_Instructions + ps.J_Type_Instructions + ps.Bonus
+def suggestions_for(instruction, known_instructions=all_instructions, type="instruction"):
+    y = known_instructions
 
     def suggester_f(instruction):
         def suggester(i):
@@ -38,9 +44,9 @@ def suggestions_for(instruction):
     c = colors()
 
     suggester = suggester_f(instruction)
-    all_instructions.sort(key=suggester, reverse=True)
-    all_instructions = filter(lambda x: suggester(x)>len(x)-2, all_instructions)
-    print(f"{c.red(instruction)} {c.highlight_red(' did not match any known instruction, perhaps you meant')}", end=" ") 
+    y.sort(key=suggester, reverse=True)
+    y = list(filter(lambda x: suggester(x)>len(x)-2, y))
+    print(f"{c.red(instruction)} {c.highlight_red(' did not match any known ')}{type}", ' perhaps you meant' if len(y) else c.highlight_white(f"no similar {type} found"), end=" ") 
     print(c.cyan_a, end="")
-    print(*all_instructions, sep=", ", end="?")
+    print(*y, sep=", ", end="?")
     print(c.end)

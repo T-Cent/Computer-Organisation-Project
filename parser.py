@@ -1,7 +1,10 @@
-from cProfile import label
 import re
 from lookup import R_Type, I_Type, S_Type, B_Type, U_Type, J_Type, Registers
 import suggester as sg
+
+'''
+the RISCV assembler, used lookup.py and suggester.py as helper modules to keep things less complicated.
+'''
 
 R_Type_Instructions = ["add", "sub", "slt", "sltu", "xor", "sll", "srl", "or", "and"]
 I_Type_Instructions = ["lw", "addi", "sltiu", "jalr"]
@@ -31,6 +34,7 @@ if __name__ == "__main__":
     
     global_correct = True
 
+    #a helper function which the two's complement of a binary. if positive, the width is adjusted later
     def twos_complement(bits, number):
         if number >= 0:
             return bin(number)
@@ -38,10 +42,12 @@ if __name__ == "__main__":
             x = bin(abs(number))
             x = "0"*(bits+2-len(x)) + x[2:]
             y = "1"*bits
-            x = int(x, base=2)^int(y, base=2)
+            #xor with 11...11 flips the bit 
+            x = int(x, base=2)^int(y, base=2) 
             x += 0b1
             return bin(x)
       
+    #a helper function which takes the indexes of registers and checks if they are valid
     def check_registers(line, *reg):
         correct_f = True
         for j in reg:
@@ -51,6 +57,7 @@ if __name__ == "__main__":
                 print(c.red(f"Error encountered at line {c.highlight_white(line+1)}, given register {c.highlight_red(i)} does not match any known register."))
 
         if not correct_f:
+            global global_correct
             global_correct = False
             return True
 
