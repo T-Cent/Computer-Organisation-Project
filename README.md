@@ -1,6 +1,9 @@
 # Computer-Organisation-Project
 # RISC-V Assembler Project
 
+## Note:
+The original git repository can be found at `github.com/taraash23552/Computer-Organisation-Project`, due to some unforseen conditions, I (taraash) managed to somehow make this repository unusable as we could not push anything to it anymore, hence, we made a new repository and tried to replicate all the premade commits added to it (using `git log --oneline`, we had all the history).
+
 ## Outline
 
 This collaborative project involves the creation of a simple RISC-V assembler with a team of four members from IIIT Delhi, India. The assembler translates RISC-V assembly code into binary machine code and is implemented in Python.
