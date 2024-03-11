@@ -2,13 +2,13 @@
 # RISC-V Assembler Project
 
 ## Note:
- - The original git repository can be found at `github.com/taraash23552/Computer-Organisation-Project`, due to some unforseen conditions, I (taraash) managed to somehow make this repository unusable as we could not push anything to it anymore, hence, we made a new repository and tried to replicate all the premade commits added to it (using `git log --oneline`, we had all the history).
- - We believe the correct answers provided by the college are wrong, we have found multiple instances in which the given solutions fail.
+ - The original git repository can be found at `github.com/taraash23552/Computer-Organisation-Project`; due to some unforeseen conditions, I (taraash) managed to make somehow this repository unusable as we could not push anything to it anymore. Hence, we made a new repository and tried to replicate all the premade commits added to it (using `git log --oneline`, we had all the history).
+ - We believe the correct answers provided by the college are wrong; we have found multiple instances in which the given solutions fail.
 
 
 ## Outline
 
-This collaborative project involves the creation of a simple RISC-V assembler with a team of four members from IIIT Delhi, India. The assembler translates RISC-V assembly code into binary machine code and is implemented in Python.
+This collaborative project involves the creation of a simple RISC-V assembler with a team of four members from IIIT Delhi, India. The assembler translates RISC-V assembly code into binary machine code, implemented in Python.
 
 ## Structure and flow of project
 
@@ -18,10 +18,10 @@ This collaborative project involves the creation of a simple RISC-V assembler wi
    # Highlight: Binary encodings for R-type, I-type, S-type, B-type, U-type, J-type instructions, and register mapping.
    ```
 
-2. **suggestor.py**: Provides a suggestion module for correcting misspelled instructions or labels, along with colored terminal output.
+2. **suggestor.py**: Provides a suggestion module for correcting misspelt instructions or labels, along with coloured terminal output.
    
    ```python
-   # Highlight: Helper module for correction suggestions and colored terminal output.
+   # Highlight: The helper module is for correction suggestions and coloured terminal output.
    ```
 
 3. **assembler.py**: Implements the RISC-V assembler, utilizing the lookup table and suggestion module to convert assembly code to binary, and it also contains the execution of the assembler. It is the main file of the project.
@@ -43,7 +43,7 @@ This collaborative project involves the creation of a simple RISC-V assembler wi
     - Contributed to error handling and correction suggestions.
 
 2. Mitul Aggarwal(2023322):
-   - Developed the `suggestor.py` module for correction suggestions and colored terminal output and helped in building and debugging the `assembler.py`.
+   - Developed the `suggestor.py` module for correction suggestions and colored terminal output and helped build and debug the `assembler.py`.
    - Contributed to error handling and correction suggestions.
    - Assisted in refining the overall code structure.
 
@@ -57,27 +57,3 @@ This collaborative project involves the creation of a simple RISC-V assembler wi
    - Wrote the README documentation.
    - Assisted in integrating individual contributions and ensuring a smooth project work throughout.
   
-## How to Use
-
-1. **Clone the Repository:**
-   ```
-   git clone <repository_url>
-   cd <repository_name>
-   ```
-
-2. **Run the Assembler:**
-   ```
-   python assembler.py <input_file.txt> <output_file.txt>
-   ```
-
-   Replace `<input_file.txt>` with your RISC-V assembly code file and `<output_file.txt>` with the desired binary output file.
-
-3. **Check for Errors:**
-   The assembler will display any errors or suggestions for corrections in the terminal. If there are no errors, it will confirm the successful creation of the binary file.
-
-## Example
-
-```bash
-python assembler.py sample_code.txt binary_output.txt
-```
-
