@@ -1,3 +1,7 @@
+'''
+A lookup table which contains all the binary encodings of every instruction.
+'''
+
 R_Type = {
         "add": {"opcode": "0110011", "funct3": "000", "funct7": "0000000"},
         "sub": {"opcode": "0110011", "funct3": "000", "funct7": "0100000"},
@@ -61,7 +65,8 @@ Registers = {
     "a3": "01101",
     "a4": "01110",
     "a5": "01111",
-    "a6": "10001",
+    "a6": "10000",
+    "a7": "10001",
     "s2": "10010",
     "s3": "10011",
     "s4": "10100",
