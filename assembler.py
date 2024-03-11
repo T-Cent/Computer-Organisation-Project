@@ -138,8 +138,11 @@ if __name__ == "__main__":
             if one_line_data[0] == "lw":
                 if check_registers(line, 1, 3):
                     continue
-                if (x:=int(one_line_data[2])) > (max:=2**12 - 1):
+                if (x:=int(one_line_data[2])) > (max:= 2**11 - 1):
                     print(c.red_a,f"Immediate value is larger than allowed, maximum value is {c.highlight_white(max)}")
+                    continue
+                if (x:=int(one_line_data[2])) < (min:= -2**11):
+                    print(c.red_a,f"Immediate value is smaller than allowed, minimum value is {c.highlight_white(min)}")
                     continue
                 else:
                     x = twos_complement(12, x)
@@ -150,8 +153,11 @@ if __name__ == "__main__":
             else:
                 if check_registers(line, 1, 2):
                     continue
-                if (x:=int(one_line_data[3])) > (max:=2**12 - 1):
+                if (x:=int(one_line_data[3])) > (max:=2**11 - 1):
                     print(c.red_a,f"Immediate value is larger than allowed, maximum value is {c.highlight_white(max)}")
+                    continue
+                if (x:=int(one_line_data[3])) < (min:= -2**11):
+                    print(c.red_a,f"Immediate value is smaller than allowed, minimum value is {c.highlight_white(min)}")
                     continue
                 else:
                     x = twos_complement(12, x)
@@ -163,22 +169,29 @@ if __name__ == "__main__":
         elif (one_line_data[0] in S_Type_Instructions):
                 if check_registers(line, 1, 3):
                     continue
-                if (x:=int(one_line_data[2])) > (max:=2**12 - 1):
+                if (x:=int(one_line_data[2])) > (max:=2**11 - 1):
                     print(c.red_a,f"Immediate value is larger than allowed, maximum value is {c.highlight_white(max)}")
+                    continue
+                if (x:=int(one_line_data[2])) < (min:= -2**11):
+                    print(c.red_a,f"Immediate value is smaller than allowed, minimum value is {c.highlight_white(min)}")
                     continue
                 else:
                     x = twos_complement(12, x)
                     one_line_data[2] = '0'*(14-len(x))+x[2:]
+                    one_line_data[2] = one_line_data[2][::-1]
 
-                binary_output += hot_fix_1(S_Type["sw"]["opcode"], one_line_data[2][0:4], S_Type["sw"]["funct3"], Registers[one_line_data[1]], Registers[one_line_data[3]], one_line_data[2][4:])
+                binary_output += one_line_data[2][11:4:-1] + Registers[one_line_data[1]] + Registers[one_line_data[3]] + S_Type["sw"]["funct3"] + one_line_data[2][4::-1] + S_Type["sw"]["opcode"]
 
 
         elif (one_line_data[0] in B_Type_Instructions):
             if check_registers(line, 1, 2):
                 continue
             try:
-                if (x:=int(one_line_data[3])) > (max:=2**12 - 1):
+                if (x:=int(one_line_data[3])) > (max:=2**11 - 1):
                     print(c.red_a,f"Immediate value is larger than allowed, maximum value is {c.highlight_white(max)}")
+                    continue
+                if (x:=int(one_line_data[3])) < (min:= -2**11):
+                    print(c.red_a,f"Immediate value is smaller than allowed, minimum value is {c.highlight_white(min)}")
                     continue
 
             except ValueError:
@@ -202,11 +215,18 @@ if __name__ == "__main__":
         elif (one_line_data[0] in U_Type_Instructions):
                 if check_registers(line, 1):
                     continue
-                if (x:=int(one_line_data[2])) > (max:=2**20 - 1):
+
+                if (x:=int(one_line_data[2])) > (max:=2**19 - 1):
                     print(c.red_a,f"Immediate value is larger than allowed, maximum value is {c.highlight_white(max)}")
                     continue
+                if (x:=int(one_line_data[2])) < (min:= -2**19):
+                    print(c.red_a,f"Immediate value is smaller than allowed, minimum value is {c.highlight_white(min)}")
+                    continue
                 else:
-                    one_line_data[2] = '0'*(22-len(bin(x)))+bin(x)[2:]
+                    x = twos_complement(20, x)
+                    one_line_data[2] = '0'*(22-len(x))+x[2:]
+                
+
           
                     binary_output += hot_fix_1(U_Type[one_line_data[0]]["opcode"], Registers[one_line_data[1]], one_line_data[2])
 
@@ -214,8 +234,11 @@ if __name__ == "__main__":
             if check_registers(line, 1):
                 continue
             try:
-                if (x:=int(one_line_data[2])) > (max:=2**20 - 1):
+                if (x:=int(one_line_data[2])) > (max:=2**19 - 1):
                     print(c.red_a,f"Immediate value is larger than allowed, maximum value is {c.highlight_white(max)}")
+                    continue
+                if (x:=int(one_line_data[2])) < (min:= -2**19):
+                    print(c.red_a,f"Immediate value is smaller than allowed, minimum value is {c.highlight_white(min)}")
                     continue
 
             except ValueError:
@@ -233,8 +256,6 @@ if __name__ == "__main__":
             except ValueError:
                 one_line_data[2] = '0'*(22-len(str(x)))+str(x)[2:]
                 one_line_data[2] = one_line_data[2][::-1]
-
-            print(one_line_data)
 
             binary_output += one_line_data[2][19] + one_line_data[2][9::-1] + one_line_data[2][10] + one_line_data[2][18:10:-1] + Registers[one_line_data[1]] + J_Type["jal"]["opcode"]
 
