@@ -40,7 +40,7 @@ U_Type = {
 }
 
 J_Type = {
-        "jal": {"opcode": "0010111"}
+        "jal": {"opcode": "1101111"}
 }
 
 Registers = {
